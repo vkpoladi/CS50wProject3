@@ -81,29 +81,7 @@ function load_mailbox(mailbox) {
       // Store email id as data attribute to easily access later for API GET/PUT requests
       element.dataset.id = emails[i].id;
       //element.setAttribute('data-id', emails[i]);
-/*
-      //Add event listener to email div element to take to single email contents
-      element.addEventListener('click', function() {
-        document.querySelector('#emails-view').style.display = 'none';
-        document.querySelector('#compose-view').style.display = 'none';
-        document.querySelector('#single-email-view').style.display = 'block';
 
-        console.log(element.dataset.id);
-
-        //GET request from API for email contents/info
-        fetch(`/emails/${element.dataset.id}`)
-        .then(response => response.json())
-        .then(email => {
-          console.log(email);
-          document.querySelector('#single-email-sender').innerHTML = email.sender;
-          document.querySelector('#single-email-recipients').innerHTML = email.recipients;
-          document.querySelector('#single-email-subject').innerHTML = email.subject;
-          document.querySelector('#single-email-timestamp').innerHTML = email.timestamp;
-          document.querySelector('#single-email-body').innerHTML = email.body;
-        })
-
-      })
-*/
       document.querySelector('#emails-view').append(element);
     }
 
@@ -127,8 +105,41 @@ function load_mailbox(mailbox) {
           document.querySelector('#single-email-subject').innerHTML = email.subject;
           document.querySelector('#single-email-timestamp').innerHTML = email.timestamp;
           document.querySelector('#single-email-body').innerHTML = email.body;
+
+          //Implement archive/unarchive button
+          let archived = email.archived;
+          button = document.querySelector('#archiveButton');
+          if (archived) {
+            button.setAttribute('value', 'Unarchive');
+            button.innerHTML = 'Unarchive';
+          } else {
+            button.setAttribute('value', 'Archive');
+            button.innerHTML = 'Archive';
+          }
+
+          button.onclick = () => {
+            fetch(`/emails/${JSON.parse(item.dataset.id)}`, {
+              method: 'PUT',
+              body:JSON.stringify({
+                archived: !email.archived
+              })
+            })
+
+            load_mailbox('inbox');
+            //Reload page to see email change between mailboxes
+            location.reload();
+          }
+
         })
 
+        //PUT request to API for changing read status
+        fetch(`/emails/${JSON.parse(item.dataset.id)}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            read: true
+          })
+        })
+        
       }
     })
 
