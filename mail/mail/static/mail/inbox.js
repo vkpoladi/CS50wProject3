@@ -16,6 +16,7 @@ function compose_email() {
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#single-email-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#reply-view').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -56,6 +57,7 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#single-email-view').style.display = 'none';
+  document.querySelector('#reply-view').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -91,6 +93,7 @@ function load_mailbox(mailbox) {
         document.querySelector('#emails-view').style.display = 'none';
         document.querySelector('#compose-view').style.display = 'none';
         document.querySelector('#single-email-view').style.display = 'block';
+        document.querySelector('#reply-view').style.display = 'none';
         
         // id from JSON gets converted to object when assigning to dataset value; Must convert back
         console.log(JSON.parse(item.dataset.id));
@@ -130,6 +133,14 @@ function load_mailbox(mailbox) {
             location.reload();
           }
 
+          //Implement reply functionality
+          replyButton = document.querySelector('#replyButton');
+          //replyButton.onclick = 
+
+          
+
+          
+
         })
 
         //PUT request to API for changing read status
@@ -148,6 +159,17 @@ function load_mailbox(mailbox) {
     console.log('Error:', error);
   });
   return false;
+
+
+}
+
+function load_reply(email_id) {
+  //Hide all sections except for reply-view
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#single-email-view').style.display = 'none';
+  document.querySelector('#reply-view').style.display = 'block';
+
 
 
 }
