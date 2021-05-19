@@ -14,6 +14,7 @@ function compose_email() {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#single-email-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
   // Clear out composition fields
@@ -54,6 +55,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#single-email-view').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -73,9 +75,63 @@ function load_mailbox(mailbox) {
       } else {
         element.style.backgroundColor = "white";
       }
-      element.innerHTML = emails[i].sender + "\t" + emails[i].subject + "\t" + emails[i].timestamp;
+
+      element.innerHTML = emails[i].id + "\t" + emails[i].sender + "\t" + emails[i].subject + "\t" + emails[i].timestamp;
+
+      // Store email id as data attribute to easily access later for API GET/PUT requests
+      element.dataset.id = emails[i].id;
+      //element.setAttribute('data-id', emails[i]);
+/*
+      //Add event listener to email div element to take to single email contents
+      element.addEventListener('click', function() {
+        document.querySelector('#emails-view').style.display = 'none';
+        document.querySelector('#compose-view').style.display = 'none';
+        document.querySelector('#single-email-view').style.display = 'block';
+
+        console.log(element.dataset.id);
+
+        //GET request from API for email contents/info
+        fetch(`/emails/${element.dataset.id}`)
+        .then(response => response.json())
+        .then(email => {
+          console.log(email);
+          document.querySelector('#single-email-sender').innerHTML = email.sender;
+          document.querySelector('#single-email-recipients').innerHTML = email.recipients;
+          document.querySelector('#single-email-subject').innerHTML = email.subject;
+          document.querySelector('#single-email-timestamp').innerHTML = email.timestamp;
+          document.querySelector('#single-email-body').innerHTML = email.body;
+        })
+
+      })
+*/
       document.querySelector('#emails-view').append(element);
     }
+
+    //Add event listener to all email divs
+    document.querySelectorAll('.email-item').forEach(item => {
+      item.onclick = () => {
+        document.querySelector('#emails-view').style.display = 'none';
+        document.querySelector('#compose-view').style.display = 'none';
+        document.querySelector('#single-email-view').style.display = 'block';
+        
+        // id from JSON gets converted to object when assigning to dataset value; Must convert back
+        console.log(JSON.parse(item.dataset.id));
+
+        //GET request from API for email contents/info
+        fetch(`/emails/${JSON.parse(item.dataset.id)}`)
+        .then(response => response.json())
+        .then(email => {
+          console.log(email);
+          document.querySelector('#single-email-sender').innerHTML = email.sender;
+          document.querySelector('#single-email-recipients').innerHTML = email.recipients;
+          document.querySelector('#single-email-subject').innerHTML = email.subject;
+          document.querySelector('#single-email-timestamp').innerHTML = email.timestamp;
+          document.querySelector('#single-email-body').innerHTML = email.body;
+        })
+
+      }
+    })
+
   })
   .catch(error => {
     console.log('Error:', error);
