@@ -28,6 +28,7 @@ function compose_email() {
     fetch('/emails', {
     method: 'POST',
       body: JSON.stringify({
+          sender: document.querySelector('#compose-sender').value,
           recipients: document.querySelector('#compose-recipients').value,
           subject: document.querySelector('#compose-subject').value,
           body: document.querySelector('#compose-body').value
@@ -132,14 +133,35 @@ function load_mailbox(mailbox) {
             //Reload page to see email change between mailboxes
             location.reload();
           }
-
-          //Implement reply functionality
+          
+          //Implement reply button
           replyButton = document.querySelector('#replyButton');
-          //replyButton.onclick = 
+          replyButton.onclick = () => {
+            //Hide all sections except for reply-view
+            document.querySelector('#emails-view').style.display = 'none';
+            document.querySelector('#compose-view').style.display = 'none';
+            document.querySelector('#single-email-view').style.display = 'none';
+            document.querySelector('#reply-view').style.display = 'block';  
 
-          
+            //GET request from API to obtain pertinent email information by email id
+            fetch(`/emails/${JSON.parse(item.dataset.id)}`)
+            .then(response => response.json())
+            .then(email => {
+              //Preset fields
+              document.querySelector('#reply-recipient').setAttribute('value', email.sender);
+              document.querySelector('#reply-subject').setAttribute('value', 'Re: ' + email.subject);
+              document.querySelector('#reply-body').innerHTML = "On " + email.timestamp + " " + email.sender + " wrote: " + email.body;
 
-          
+              //Add eventlistener to reply-submit button
+              document.querySelector('#reply-form').onsubmit = () => {
+                reply_to_email();
+              }
+
+            })
+
+            
+
+          }
 
         })
 
@@ -163,13 +185,32 @@ function load_mailbox(mailbox) {
 
 }
 
-function load_reply(email_id) {
-  //Hide all sections except for reply-view
-  document.querySelector('#emails-view').style.display = 'none';
-  document.querySelector('#compose-view').style.display = 'none';
-  document.querySelector('#single-email-view').style.display = 'none';
-  document.querySelector('#reply-view').style.display = 'block';
+function reply_to_email() {
+  console.log('reply function called');
 
-
-
+  //Submit form data to API via POST
+  fetch('/emails', {
+    method: 'POST',
+      body: JSON.stringify({
+          sender: document.querySelector('#reply-sender').value,
+          recipients: document.querySelector('#reply-recipient').value,
+          subject: document.querySelector('#reply-subject').value,
+          body: document.querySelector('#reply-body').value
+      })
+  })
+  .then(response => {
+    return response.json()
+  })
+  .then(result => {
+    console.log(result);
+    console.log('Email reply sent');
+    load_mailbox('inbox')
+  })
+  //Incase API is down or has issues
+  .catch(error => {
+      console.log('Error:', error);
+  });
+  //Not needed, but good practice
+  return false;
 }
+
